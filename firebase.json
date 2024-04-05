@@ -10,8 +10,8 @@
         "firebase-debug.*.log"
       ],
       "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
+        "npm --prefix ./frontend run lint",
+        "npm --prefix ./frontend run build"
       ]
     }
   ],
@@ -23,6 +23,14 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "/script.js",
+        "destination": "/script.js"
+      },
+      {
+        "source": "/style.css",
+        "destination": "/style.css"
+      },
       {
         "source": "**",
         "destination": "/index.html"

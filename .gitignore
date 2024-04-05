@@ -64,3 +64,8 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# Build output
+public/script.js
+public/script.js.LICENSE.txt
+public/style.css
