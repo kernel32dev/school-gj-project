@@ -5,3 +5,23 @@
     flex-grow: 0;
     flex-shrink: 0;
 }
+
+.screen-page {
+    width: 100vw;
+    min-height: 100vh;
+}
+
+.screen-page-fixed {
+    width: 100vw;
+    height: 100vh;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.text-center {
+    text-align: center;
+}
