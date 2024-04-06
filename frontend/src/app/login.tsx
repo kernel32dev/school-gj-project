@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { Button, Grid, TextField, Typography } from "@mui/material";
+import { PaperPage } from "../comp";
 
 export function LoginPage() {
     const [email, setEmail] = useState("");
@@ -16,26 +18,54 @@ export function LoginPage() {
     }, []);
 
     return (
-        <div className="screen-page flex-center">
-            <div>
-                <h1>Login</h1>
-                <br />
-                <label htmlFor="email">Email</label>
-                <br />
-                <input name="email" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                <br />
-                <br />
-                <label htmlFor="password">Password</label>
-                <br />
-                <input name="password" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                <br />
-                <br />
-                <button onClick={handleLogin} disabled={loggingIn}>Login</button>
-                <br />
-                <br />
-                <Link to="/signin">Don"t have an account?<br />Try creating one!</Link>
-            </div>
-        </div>
+        <PaperPage>
+            <form>
+                <Grid container direction='column' spacing={2}>
+                    <Grid item>
+                        <Typography component='h1' variant='h5'>
+                            Login
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            type='email'
+                            placeholder='Email'
+                            fullWidth
+                            name='email'
+                            variant='outlined'
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
+                            required
+                            autoFocus
+                        />
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            type='password'
+                            placeholder='Password'
+                            fullWidth
+                            name='password'
+                            variant='outlined'
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                            required
+                        />
+                    </Grid>
+                    <Grid item alignSelf='center'>
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            type='submit'
+                            className='button-block'
+                            disabled={loggingIn}
+                            onClick={handleLogin}
+                        >
+                            Submit
+                        </Button>
+                    </Grid>
+                </Grid>
+            </form>
+        </PaperPage>
     );
     async function handleLogin() {
         setLoggingIn(true);
@@ -58,26 +88,54 @@ export function SigninPage() {
     const navigate = useNavigate();
 
     return (
-        <div className="screen-page flex-center">
-            <div>
-                <h1>Signin</h1>
-                <br />
-                <label htmlFor="email">Email</label>
-                <br />
-                <input name="email" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                <br />
-                <br />
-                <label htmlFor="password">Password</label>
-                <br />
-                <input name="password" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                <br />
-                <br />
-                <button onClick={handleSignin} disabled={signingIn}>Signin</button>
-                <br />
-                <br />
-                <Link to="/login">Already have an account?<br />Try using it!</Link>
-            </div>
-        </div>
+        <PaperPage>
+            <form>
+                <Grid container direction='column' spacing={2}>
+                    <Grid item>
+                        <Typography component='h1' variant='h5'>
+                            Login
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            type='email'
+                            placeholder='Email'
+                            fullWidth
+                            name='email'
+                            variant='outlined'
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
+                            required
+                            autoFocus
+                        />
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            type='password'
+                            placeholder='Password'
+                            fullWidth
+                            name='password'
+                            variant='outlined'
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                            required
+                        />
+                    </Grid>
+                    <Grid item alignSelf='center'>
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            type='submit'
+                            className='button-block'
+                            disabled={signingIn}
+                            onClick={handleSignin}
+                        >
+                            Submit
+                        </Button>
+                    </Grid>
+                </Grid>
+            </form>
+        </PaperPage>
     );
 
     async function handleSignin() {
@@ -103,15 +161,33 @@ export function LogoffPage() {
     }, []);
 
     return (
-        <div className="screen-page flex-center">
-            <div>
-                <h4>Are you sure you want to logoff?</h4>
-                <br />
-                <button onClick={logoff}>Yes, Logoff</button>
-                {"\u{A0}"}
-                <button onClick={home}>No, return to home page</button>
-            </div>
-        </div>
+        <PaperPage>
+            <Grid container spacing={2} alignItems='center' direction='column'>
+                <Grid item>
+                    <Typography component='h1' variant='h5'>
+                        Are you sure you want to logoff?
+                    </Typography>
+                </Grid>
+                <Grid item alignSelf='center'>
+                    <Button
+                        variant='contained'
+                        color='primary'
+                        className='button-block'
+                        onClick={logoff}
+                    >
+                        Yes, Logoff
+                    </Button>
+                </Grid>
+                <Grid item alignSelf='center'>
+                    <Button
+                        className='button-block'
+                        onClick={home}
+                    >
+                        No, return to home page
+                    </Button>
+                </Grid>
+            </Grid>
+        </PaperPage>
     );
     function logoff() {
         auth.signOut().then(() => navigate("/login"));
