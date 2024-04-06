@@ -19,6 +19,7 @@
         "@types/react-dom": "*",
         "babel-loader": "*",
         "css-loader": "*",
+        "firebase": "*",
         "mini-css-extract-plugin": "*",
         "nodemon": "*",
         "npm-run-all": "*",

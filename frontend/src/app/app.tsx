@@ -1,35 +1,32 @@
-import { useState, JSX } from "react";
-import { Navigate, Route, Routes, Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Route, Routes, Link, useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { LoginPage, LogoffPage, SigninPage } from "./login";
 
-export function App(): JSX.Element {
+export function App() {
     return (
         <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/logoff" element={<Logoff />} />
-            <Route path="/menu" element={<Menu />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signin" element={<SigninPage />} />
+            <Route path="/logoff" element={<LogoffPage />} />
+            <Route path="*" element={<NotFoundPage />} />
         </Routes>
     );
 }
 
-function Login() {
-    return <>
-        <h2>Login</h2>
-        <Link to="/menu">Go to menu</Link>
-    </>;
-}
-
-function Logoff() {
-    return <h2>Logoff</h2>;
-}
-
-function Menu() {
+function HomePage() {
     const [counter, setCounter] = useState(0);
+    const navigate = useNavigate();
+    useEffect(() => {
+        isLoggedIn().then(loggedIn => {
+            if (!loggedIn) navigate("/login", { replace: true });
+        });
+    }, []);
     return (
         <div className="screen-page flex-center">
             <div className="text-center">
-                <h1>React is working!</h1>
+                <h1>You are logged in!</h1>
                 <hr />
                 <br />
                 <p>The value of counter is {counter}</p>
@@ -38,17 +35,27 @@ function Menu() {
                 <br />
                 <br />
                 <nav>
-                    <Link to="/login">Login</Link>
-                    <br />
                     <Link to="/logoff">Logoff</Link>
-                    <br />
-                    <Link to="/menu">Menu</Link>
                 </nav>
             </div>
         </div>
     );
 }
 
-function NotFound() {
-    return <h2>404 - Page Not Found</h2>;
+function NotFoundPage() {
+    return (
+        <div className="screen-page flex-center">
+            <div className="text-center">
+                <h1>404</h1>
+                <h2>What you are looking for is not here!</h2>
+                <br />
+                If you are lost, maybe you could go back <Link to="/">home</Link>!
+            </div>
+        </div>
+    );
+}
+
+async function isLoggedIn(): Promise<boolean> {
+    await auth.authStateReady();
+    return !!auth.currentUser;
 }
