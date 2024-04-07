@@ -166,7 +166,7 @@ function SigninPage() {
                     <Grid item alignSelf='center'>
                         <Button
                             className='button-block'
-                            onClick={() => navigate("/signin", {replace: true})}
+                            onClick={() => navigate("/login", {replace: true})}
                         >
                             Use an existing account
                         </Button>
