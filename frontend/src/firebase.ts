@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCJKwY4_0WR5nhlNo6O_9Omhby_c95Sv2Q",
-    authDomain: "school-gj.firebaseapp.com",
-    projectId: "school-gj",
-    storageBucket: "school-gj.appspot.com",
-    messagingSenderId: "797864433655",
-    appId: "1:797864433655:web:b795d47873cc58d18b00f2",
-    measurementId: "G-HEWH5RKK3C",
+    apiKey: "AIzaSyCMaRG5wjqMBQaiOEbkqPHepWNDVUelMNQ",
+    authDomain: "school-gj-project.firebaseapp.com",
+    projectId: "school-gj-project",
+    storageBucket: "school-gj-project.appspot.com",
+    messagingSenderId: "314230982472",
+    appId: "1:314230982472:web:22138c261d0b1a7d6ad57d",
+    measurementId: "G-G5K73J1R6C"
 };
 
 export const app = initializeApp(firebaseConfig);

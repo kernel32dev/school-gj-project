@@ -1,5 +1,11 @@
 {
   "projects": {
-    "default": "school-gj"
+    "default": "school-gj-project"
+  },
+  "targets": {},
+  "etags": {
+    "school-gj-project": {
+      "extensionInstances": {}
+    }
   }
 }

@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { Route, useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import { auth } from "../firebase";
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import { PaperPage } from "../comp";
 
-export function LoginPage() {
+export function LoginRoutes() {
+    return <>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signin" element={<SigninPage />} />
+        <Route path="/logoff" element={<LogoffPage />} />
+        <Route path="/signoff" element={<SignoffPage />} />
+    </>
+}
+
+function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loggingIn, setLoggingIn] = useState(false);
@@ -58,18 +67,26 @@ export function LoginPage() {
                             type='submit'
                             className='button-block'
                             disabled={loggingIn}
-                            onClick={handleLogin}
+                            onClick={login}
                         >
                             Submit
+                        </Button>
+                    </Grid>
+                    <Grid item alignSelf='center'>
+                        <Button
+                            className='button-block'
+                            onClick={() => navigate("/signin", {replace: true})}
+                        >
+                            Create account
                         </Button>
                     </Grid>
                 </Grid>
             </form>
         </PaperPage>
     );
-    async function handleLogin() {
-        setLoggingIn(true);
+    async function login() {
         try {
+            setLoggingIn(true);
             await signInWithEmailAndPassword(auth, email, password);
             navigate("/", { replace: true });
         } catch (error: any) {
@@ -81,9 +98,10 @@ export function LoginPage() {
     }
 };
 
-export function SigninPage() {
+function SigninPage() {
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [password1, setPassword1] = useState("");
+    const [password2, setPassword2] = useState("");
     const [signingIn, setSigningIn] = useState(false);
     const navigate = useNavigate();
 
@@ -93,7 +111,7 @@ export function SigninPage() {
                 <Grid container direction='column' spacing={2}>
                     <Grid item>
                         <Typography component='h1' variant='h5'>
-                            Login
+                            Signin
                         </Typography>
                     </Grid>
                     <Grid item>
@@ -114,10 +132,22 @@ export function SigninPage() {
                             type='password'
                             placeholder='Password'
                             fullWidth
-                            name='password'
+                            name='password1'
                             variant='outlined'
-                            value={password}
-                            onChange={(event) => setPassword(event.target.value)}
+                            value={password1}
+                            onChange={(event) => setPassword1(event.target.value)}
+                            required
+                        />
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            type='password'
+                            placeholder='Repeat password'
+                            fullWidth
+                            name='password2'
+                            variant='outlined'
+                            value={password2}
+                            onChange={(event) => setPassword2(event.target.value)}
                             required
                         />
                     </Grid>
@@ -128,9 +158,17 @@ export function SigninPage() {
                             type='submit'
                             className='button-block'
                             disabled={signingIn}
-                            onClick={handleSignin}
+                            onClick={signin}
                         >
                             Submit
+                        </Button>
+                    </Grid>
+                    <Grid item alignSelf='center'>
+                        <Button
+                            className='button-block'
+                            onClick={() => navigate("/signin", {replace: true})}
+                        >
+                            Use an existing account
                         </Button>
                     </Grid>
                 </Grid>
@@ -138,10 +176,15 @@ export function SigninPage() {
         </PaperPage>
     );
 
-    async function handleSignin() {
-        setSigningIn(true);
+    async function signin() {
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            setSigningIn(true);
+            if (password1 != password2) {
+                alert("passwords do not match");
+                return;
+            }
+            await createUserWithEmailAndPassword(auth, email, password1);
+            alert("account created!\nnow login with your credentials");
             navigate("/login", { replace: true });
         } catch (error: any) {
             console.error(error.code, error.message);
@@ -152,7 +195,8 @@ export function SigninPage() {
     }
 };
 
-export function LogoffPage() {
+function LogoffPage() {
+    const [signingIn, setSigningIn] = useState(false);// TODO!
     const navigate = useNavigate();
     useEffect(() => {
         isLoggedIn().then(loggedIn => {
@@ -181,7 +225,7 @@ export function LogoffPage() {
                 <Grid item alignSelf='center'>
                     <Button
                         className='button-block'
-                        onClick={home}
+                        onClick={() => navigate("/")}
                     >
                         No, return to home page
                     </Button>
@@ -192,8 +236,86 @@ export function LogoffPage() {
     function logoff() {
         auth.signOut().then(() => navigate("/login"));
     }
-    function home() {
-        navigate("/");
+}
+
+function SignoffPage() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [signingOff, setSigningOff] = useState(false);
+    const navigate = useNavigate();
+    useEffect(() => {
+        isLoggedIn().then(loggedIn => {
+            if (!loggedIn) navigate("/login", { replace: true });
+        });
+    }, []);
+
+    return (
+        <PaperPage>
+            <Grid container spacing={2} alignItems='center' direction='column'>
+                <Grid item>
+                    <Typography component='h4' variant='h5'>
+                        Login to delete your account
+                    </Typography>
+                </Grid>
+                <Grid item>
+                    <TextField
+                        type='email'
+                        placeholder='Email'
+                        fullWidth
+                        name='email'
+                        variant='outlined'
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        required
+                        autoFocus
+                    />
+                </Grid>
+                <Grid item>
+                    <TextField
+                        type='password'
+                        placeholder='Password'
+                        fullWidth
+                        name='password'
+                        variant='outlined'
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        required
+                    />
+                </Grid>
+                <Grid item alignSelf='center'>
+                    <Button
+                        variant='contained'
+                        color='warning'
+                        className='button-block'
+                        onClick={signoff}
+                        disabled={signingOff || !email || !password}
+                    >
+                        Yes, delete my account
+                    </Button>
+                </Grid>
+                <Grid item alignSelf='center'>
+                    <Button
+                        className='button-block'
+                        onClick={() => navigate("/")}
+                    >
+                        No, return to home page
+                    </Button>
+                </Grid>
+            </Grid>
+        </PaperPage>
+    );
+    async function signoff() {
+        try {
+            setSigningOff(true);
+            await signInWithEmailAndPassword(auth, email, password);
+            await deleteUser(auth.currentUser!);
+            navigate("/login", { replace: true });
+        } catch (error: any) {
+            console.error(error.code, error.message);
+            alert(`Signoff error:\n${error.code}\n${error.message}`);
+        } finally {
+            setSigningOff(false);
+        }
     }
 }
 

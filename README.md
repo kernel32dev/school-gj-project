@@ -9,9 +9,9 @@ Roadmap: (subject to changes)
 - [x] Add login
 - [x] Add Material UI
 - [x] Add sql persistence
+- [x] Host on firebase
+- [ ] Figure out Cloud SQL
 - [ ] Add CRUD functionality
 - [ ] Add reports
-- [ ] Host on firebase
-- [ ] Figure out Cloud SQL
 - [ ] ???
 - [ ] Profit

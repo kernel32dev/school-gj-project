@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
-import { LoginPage, LogoffPage, SigninPage } from "./login";
+import { LoginRoutes } from "./login";
 
 export function App() {
     return (
         <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signin" element={<SigninPage />} />
-            <Route path="/logoff" element={<LogoffPage />} />
+            {LoginRoutes()}
             <Route path="*" element={<NotFoundPage />} />
         </Routes>
     );
@@ -36,6 +34,8 @@ function HomePage() {
                 <br />
                 <nav>
                     <Link to="/logoff">Logoff</Link>
+                    <br />
+                    <Link to="/signoff">Signoff</Link>
                 </nav>
             </div>
         </div>
