@@ -8,7 +8,7 @@ Roadmap: (subject to changes)
 - [x] Setup react and typescript build system
 - [x] Add login
 - [x] Add Material UI
-- [ ] Add sql persistence
+- [x] Add sql persistence
 - [ ] Add CRUD functionality
 - [ ] Add reports
 - [ ] Host on firebase
