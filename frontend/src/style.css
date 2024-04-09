@@ -6,6 +6,10 @@
     flex-shrink: 0;
 }
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .screen-page {
     width: 100vw;
     min-height: 100vh;
