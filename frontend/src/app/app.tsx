@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, helloWorld } from "../firebase";
 import { LoginRoutes } from "./login";
 
 export function App() {
@@ -32,6 +32,9 @@ function HomePage() {
                 <button onClick={() => setCounter(counter + 1)}>increment counter</button>
                 <br />
                 <br />
+                <button onClick={test_firebase_function}>test_firebase_function</button>
+                <br />
+                <br />
                 <nav>
                     <Link to="/logoff">Logoff</Link>
                     <br />
@@ -40,6 +43,9 @@ function HomePage() {
             </div>
         </div>
     );
+    function test_firebase_function() {
+        helloWorld().then(console.log).catch(console.error);
+    }
 }
 
 function NotFoundPage() {

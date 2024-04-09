@@ -1,7 +1,7 @@
 school-gj
 ---
 
-An example project using react, material UI and typescript, hosted on firebase
+An example project using react, material UI, node and typescript, hosted on firebase
 
 Roadmap: (subject to changes)
 - [x] Create github repository
@@ -10,7 +10,7 @@ Roadmap: (subject to changes)
 - [x] Add Material UI
 - [x] Add sql persistence
 - [x] Host on firebase
-- [ ] Figure out Cloud SQL
+- [x] Figure out Cloud SQL
 - [ ] Add CRUD functionality
 - [ ] Add reports
 - [ ] ???
