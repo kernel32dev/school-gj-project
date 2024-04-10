@@ -1,3 +1,4 @@
+import "./types";
 import { FirebaseOptions, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { connectFunctionsEmulator, getFunctions, httpsCallable, httpsCallableFromURL } from "firebase/functions";
@@ -29,4 +30,9 @@ function customCallable<RequestData = unknown, ResponseData = unknown>(name: str
     }
 }
 
-export const helloWorld = customCallable<void, void>("helloWorld");
+export const listGuardian = customCallable<void, db.Guardian[]>("listGuardian");
+export const listStudent = customCallable<void, db.Student[]>("listStudent");
+export const listCourse = customCallable<void, db.Course[]>("listCourse");
+export const listGrade = customCallable<void, db.Grade[]>("listGrade");
+export const listClass = customCallable<void, db.Class[]>("listClass");
+export const listClassStudent = customCallable<void, db.ClassStudent[]>("listClassStudent");

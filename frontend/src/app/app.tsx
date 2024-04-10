@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Route, Routes, Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { Route, Routes, Link, useNavigate, Outlet, Navigate, useLocation } from "react-router-dom";
+import { auth, listGuardian } from "../firebase";
 import { LoginRoutes } from "./login";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -16,20 +16,47 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
+import { CrudRoute } from "./crud";
+
+type AppDrawerItem = { caption: string, to: string } | "-";
 
 export function App() {
+    const drawerWidth = 240;
+    const drawerItems: AppDrawerItem[] = [
+        { caption: "Home", to: "/" },
+        { caption: "Guardian", to: "/guardian" },
+        "-",
+        { caption: "Logoff", to: "/logoff" },
+        { caption: "Signoff", to: "/signoff" },
+    ];
     return (
         <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/404" element={<NotFoundPage />} />
             {LoginRoutes()}
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="/*" element={<HomePage drawerItems={drawerItems} drawerWidth={drawerWidth} />}>
+                <Route path="" element={<Typography>TODO! Home content</Typography>} />
+                {CrudRoute({
+                    path: "guardian",
+                    title: "Guardians",
+                    list: listGuardian,
+                    columns: [
+                        { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
+                        { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
+                        { field: 'created_dth', headerName: 'Created', width: 200, type: 'dateTime', crudVisible: false, cellClassName: "crud-cell-dim" },
+                        { field: 'updated_dth', headerName: 'Updated', width: 200, type: 'dateTime', crudVisible: false, cellClassName: "crud-cell-dim" },
+                    ]
+                })}
+                <Route path="*" element={<Navigate to="/404" />} />
+            </Route>
         </Routes>
     );
 }
 
-export function HomePage() {
+export function HomePage(props: { drawerItems: AppDrawerItem[], drawerWidth: number }) {
+    const { drawerItems, drawerWidth } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation().pathname;
 
     useEffect(() => {
         isLoggedIn().then(loggedIn => {
@@ -41,13 +68,6 @@ export function HomePage() {
         setMobileOpen(x => !x);
     };
 
-    const drawerWidth = 240;
-    const drawerItems = {
-        "Home": () => navigate("/"),
-        "Logoff": () => navigate("/logoff"),
-        "Signoff": () => navigate("/signoff"),
-    };
-
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
             <Typography variant="h6" sx={{ my: 2 }}>
@@ -55,13 +75,14 @@ export function HomePage() {
             </Typography>
             <Divider />
             <List>
-                {Object.keys(drawerItems).map((key) => (
-                    <ListItem key={key} disablePadding>
+                {drawerItems.map((x, i) => x === "-" ? <Divider key={i} /> : (
+                    <ListItem key={i} disablePadding>
                         <ListItemButton
+                            selected={x.to == location}
                             sx={{ textAlign: 'center' }}
-                            onClick={drawerItems[key as keyof typeof drawerItems]}
+                            onClick={() => navigate(x.to)}
                         >
-                            <ListItemText primary={key} />
+                            <ListItemText primary={x.caption} />
                         </ListItemButton>
                     </ListItem>
                 ))}
@@ -70,9 +91,7 @@ export function HomePage() {
     );
     const main = <>
         <Toolbar />
-        <Typography>
-            Main content
-        </Typography>
+        <Outlet />
     </>;
 
     return (

@@ -20,12 +20,6 @@ function LoginPage() {
     const [loggingIn, setLoggingIn] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        isLoggedIn().then(loggedIn => {
-            if (!loggedIn) navigate("/login", { replace: true });
-        });
-    }, []);
-
     return (
         <PaperPage>
             <form>

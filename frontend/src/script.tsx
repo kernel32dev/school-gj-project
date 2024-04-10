@@ -1,3 +1,4 @@
+import "./types.ts";
 import { createRoot } from "react-dom/client";
 import { App } from "./app/app";
 import { BrowserRouter } from "react-router-dom";

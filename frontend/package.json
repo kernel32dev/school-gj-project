@@ -17,6 +17,7 @@
         "@emotion/styled": "*",
         "@mui/icons-material": "*",
         "@mui/material": "*",
+        "@mui/x-data-grid": "*",
         "@types/express": "*",
         "@types/express-ws": "*",
         "@types/react": "*",
