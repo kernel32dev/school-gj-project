@@ -1,8 +1,6 @@
 import * as mysql from "mysql2";
-import type { Response as ExpressResponse } from "express";
 import * as logger from "firebase-functions/logger";
-
-const development = process.env["NODE_ENV"] !== "production";
+import { development } from "./environment";
 
 const mysql_config: mysql.PoolOptions = development
     ? {
@@ -25,23 +23,15 @@ const mysql_config: mysql.PoolOptions = development
 const pool = mysql.createPool(mysql_config);
 
 export default {
-    /** executes the query, and returns the data in the promise
-     *
-     * if the query fails, the errors is logged and sent through the response and the promise never resolves */
     query<T extends mysql.QueryResult>(
-        res: ExpressResponse,
         sql: string | mysql.QueryOptions,
         values?: any[],
     ): Promise<T> {
-        return new Promise<T>((resolve) => {
+        return new Promise<T>((resolve, reject) => {
             pool.query<T>(sql as any, values, (error, data) => {
                 if (error) {
                     logger.error({sql, error});
-                    if (development) {
-                        res.status(500).send({error});
-                    } else {
-                        res.status(500);
-                    }
+                    reject(error);
                     return;
                 }
                 resolve(data);

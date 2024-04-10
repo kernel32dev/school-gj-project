@@ -23,7 +23,7 @@ export type CrudColDef = GridColDef & {
     /** makes the text in the table less important */
     cellClassName?: "crud-cell-dim",
 };
-type CrudProps<T> = { path: string, title: string, list: () => Promise<{ data: T[] }>, columns: CrudColDef[] };
+type CrudProps<T> = { path: string, title: string, list: () => Promise<{ rows: T[] }>, columns: CrudColDef[] };
 
 export function CrudRoute<T>(props: CrudProps<T>) {
     const crud_list = <CrudList {...props} />;
@@ -44,7 +44,7 @@ function CrudList<T>(props: CrudProps<T>) {
     const navigate = useNavigate();
     useEffect(() => {
         list().then(x => {
-            setRows(x.data);
+            setRows(x.rows);
         });
     }, []);
     return (

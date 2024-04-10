@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, Link, useNavigate, Outlet, Navigate, useLocation } from "react-router-dom";
-import { auth, listGuardian } from "../firebase";
+import { auth, backend } from "../firebase";
 import { LoginRoutes } from "./login";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -38,7 +38,7 @@ export function App() {
                 {CrudRoute({
                     path: "guardian",
                     title: "Guardians",
-                    list: listGuardian,
+                    list: () => backend({name:"ListClassStudent"}),
                     columns: [
                         { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
                         { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },

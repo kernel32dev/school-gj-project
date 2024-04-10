@@ -1,4 +1,4 @@
-import "./types";
+/// <reference path="../../types.d.ts" />
 import { FirebaseOptions, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { connectFunctionsEmulator, getFunctions, httpsCallable, httpsCallableFromURL } from "firebase/functions";
@@ -18,21 +18,12 @@ const firebaseConfig: FirebaseOptions = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-const functions = getFunctions(app);
+const functions = getFunctions(app, "southamerica-east1");
 
 if (development) connectFunctionsEmulator(functions, "localhost", 5001);
 
-function customCallable<RequestData = unknown, ResponseData = unknown>(name: string) {
-    if (development) {
-        return httpsCallableFromURL<RequestData, ResponseData>(functions, "http://localhost:5001/school-gj-project/southamerica-east1/" + name);
-    } else {
-        return httpsCallable<RequestData, ResponseData>(functions, name);
-    }
-}
+export const backendCallable = httpsCallable(functions, "backend");
 
-export const listGuardian = customCallable<void, db.Guardian[]>("listGuardian");
-export const listStudent = customCallable<void, db.Student[]>("listStudent");
-export const listCourse = customCallable<void, db.Course[]>("listCourse");
-export const listGrade = customCallable<void, db.Grade[]>("listGrade");
-export const listClass = customCallable<void, db.Class[]>("listClass");
-export const listClassStudent = customCallable<void, db.ClassStudent[]>("listClassStudent");
+export function backend<T extends FirebaseApi[keyof FirebaseApi]["request"]>(request: T): Promise<FirebaseApi[T["name"]]["response"]> {
+    return backendCallable(request).then(x => x.data) as Promise<any>;
+}
