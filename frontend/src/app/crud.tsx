@@ -11,7 +11,6 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Navigate, Route, useNavigate } from 'react-router-dom';
 import { ConfirmDialog, ErrorAlert } from '../comp';
 
 export type CrudColDef = GridColDef & {
@@ -24,29 +23,29 @@ export type CrudColDef = GridColDef & {
     /** makes the text in the table less important */
     cellClassName?: "crud-cell-dim",
 };
-type CrudProps<T> = { path: string, title: string, list: () => Promise<{ rows: T[] }>, upsert: (value: T) => Promise<unknown>, delete: (ids: number[]) => Promise<unknown>, columns: CrudColDef[] };
+export type CrudProps<T> = { path: string, title: string, list: () => Promise<{ rows: T[] }>, upsert: (value: T) => Promise<unknown>, delete: (ids: number[]) => Promise<unknown>, columns: CrudColDef[] };
 
-export function CrudRoute<T extends { id: number }>(props: CrudProps<T>) {
-    const crud_list = <CrudList {...props} />;
-    const crud_new = <CrudNew {...props} />;
-    return (
-        <Route path={props.path}>
-            <Route path="" element={crud_list} />
-            <Route path="new" element={crud_new} />
-            <Route path="*" element={<Navigate to="/404" />} />
-        </Route>
-    );
+type State<T> = "read" | { "write": T | null }
+
+export function Crud<T extends { id: number }>(props: CrudProps<T>) {
+    const [crudState, setCrudState] = useState<State<T>>("read");
+    return crudState === "read"
+        ? <CrudRead setCrudState={setCrudState} {...props} />
+        : <CrudWrite setCrudState={setCrudState} row={crudState.write} {...props} />;
 }
 
-function CrudList<T extends { id: number }>(props: CrudProps<T>) {
+function CrudRead<T extends { id: number }>(props: CrudProps<T> & { setCrudState: (value: State<T>) => void }) {
     const [confirm, setConfirm] = useState<[string, string] | null>(null);
     const { path, title, list, columns } = props;
+    const [loading, setLoading] = useState(false);
     const [rows, setRows] = useState<T[]>([]);
     const [selection, setSelection] = useState<GridRowSelectionModel>([]);
-    const navigate = useNavigate();
     useEffect(() => {
+        setLoading(true);
         list().then(x => {
             setRows(x.rows);
+        }).finally(() => {
+            setLoading(false);
         });
     }, []);
     return <>
@@ -59,6 +58,7 @@ function CrudList<T extends { id: number }>(props: CrudProps<T>) {
             </Box>
             <div style={{ height: '400px', width: '100%', flexGrow: 1, flexShrink: 1 }}>
                 <DataGrid
+                    loading={loading}
                     rows={rows}
                     columns={columns}
                     initialState={{
@@ -73,14 +73,20 @@ function CrudList<T extends { id: number }>(props: CrudProps<T>) {
                 />
             </div>
         </Box>
-        <ConfirmDialog prompState={[confirm, setConfirm]} onConfirm={crudDeleteConfirm}/>
+        <ConfirmDialog prompState={[confirm, setConfirm]} onConfirm={crudDeleteConfirm} />
     </>;
     function crudAdd() {
-        navigate(`/${path}/new`);
+        props.setCrudState({"write": null});
     }
     function crudEdit() {
-        alert("TODO! edit");
-        //if (selection.length == 1) navigate(`/${path}/edit/${selection[0]}`);
+        if (selection.length != 1) return;
+        let row = rows.find(x => x.id == selection[0]);
+        if (!row) {
+            console.warn(`row with id ${selection[0]} does not exist even though it is selected`);
+            props.setCrudState({"write": null}); // as a fallback, do an add
+        } else {
+            props.setCrudState({"write": row});
+        }
     }
     function crudDelete() {
         if (selection.length == 0) return;
@@ -95,19 +101,19 @@ function CrudList<T extends { id: number }>(props: CrudProps<T>) {
     }
 }
 
-function CrudNew<T>(props: CrudProps<T>) {
+function CrudWrite<T extends { id: number }>(props: CrudProps<T> & { setCrudState: (value: State<T>) => void, row: T | null }) {
     const columns = props.columns.filter(x => x.crudVisible !== false);
     const autoFocusIndex = columns.findIndex(x => x.crudEnabled !== false);
 
-    const navigate = useNavigate();
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const [validating, setValidating] = useState(false);
-    const [data, setData] = useState<Record<string, any>>(() => {
+    /*const [data, setData] = useState<Record<string, any>>(() => {
         const obj: any = {};
         for (const x of columns) if (x.crudVisible !== false && x.crudEnabled !== false) obj[x.field] = "";
         return obj;
-    });
+    });*/
+    const [data, setData] = useState<Record<string, any>>(!props.row ? {} : JSON.parse(JSON.stringify(props.row)));
     return <>
         <Grid container direction="column" spacing={2}>
             <Grid item>
@@ -124,6 +130,7 @@ function CrudNew<T>(props: CrudProps<T>) {
                         fullWidth
                         name={"crud_" + x.field}
                         variant='outlined'
+                        value={data[x.field]}
                         onInput={(event) => setData(data => ({ ...data, [x.field]: (event.target as HTMLInputElement).value }))}
                         required={!saving && x.crudEnabled !== false}
                         disabled={saving || x.crudEnabled === false}
@@ -157,7 +164,7 @@ function CrudNew<T>(props: CrudProps<T>) {
         setSaving(true);
         try {
             await props.upsert(data as T);
-            navigate("/" + props.path);
+            props.setCrudState("read");
         } catch (error) {
             setError("An error occoured when saving the data");
             throw error;
@@ -166,7 +173,7 @@ function CrudNew<T>(props: CrudProps<T>) {
         }
     }
     function crudCancel() {
-        navigate("/" + props.path);
+        props.setCrudState("read");
     }
     function valid(x: any) {
         return x !== undefined && x !== null && x !== "";

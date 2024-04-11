@@ -82,7 +82,7 @@ export function ErrorAlert({ errorState }: { errorState: [string, (value: "") =>
 }
 
 export function ConfirmDialog({ prompState, onConfirm }: { prompState: [[string, string] | null, (value: null) => void], onConfirm: () => void }) {
-    const [lastMessage, setLastMessage] = useState(["", ""]);
+    const [lastMessage, setLastMessage] = useState(["Are you sure you want to continue?", "Confirm"]);
     const [message, clearMessage] = prompState;
     const onClose = () => clearMessage(null);
     if (message && lastMessage != message) setLastMessage(message);
@@ -90,11 +90,11 @@ export function ConfirmDialog({ prompState, onConfirm }: { prompState: [[string,
         <Dialog open={!!message} onClose={onClose} aria-labelledby="alert-dialog-title">
             <DialogTitle id="alert-dialog-title">Error</DialogTitle>
             <DialogContent>
-                {message ? message[0] : lastMessage}
+                {message ? message[0] : lastMessage[0]}
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => { onClose(); onConfirm(); }} color="primary" variant="contained" autoFocus>
-                    {message ? message[1] : "Confirm"}
+                    {message ? message[1] : lastMessage[1]}
                 </Button>
                 <Button onClick={onClose} color="primary" autoFocus>
                     Cancel

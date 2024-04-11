@@ -16,7 +16,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
-import { CrudRoute } from "./crud";
+import { Crud, CrudProps } from "./crud";
 
 type AppDrawerItem = { caption: string, to: string } | "-";
 
@@ -29,25 +29,26 @@ export function App() {
         { caption: "Logoff", to: "/logoff" },
         { caption: "Signoff", to: "/signoff" },
     ];
+    const guardian: CrudProps<db.Guardian> = {
+        path: "guardian",
+        title: "Guardians",
+        list: () => backend({ api: "ListGuardian" }),
+        upsert: (row) => backend({ api: "UpsertGuardian", row }),
+        delete: (ids) => backend({ api: "DeleteGuardian", ids }),
+        columns: [
+            { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
+            { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'created_dth', headerName: 'Created', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+            { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+        ]
+    };
     return (
         <Routes>
             <Route path="/404" element={<NotFoundPage />} />
             {LoginRoutes()}
             <Route path="/*" element={<HomePage drawerItems={drawerItems} drawerWidth={drawerWidth} />}>
                 <Route path="" element={<HomeContent />} />
-                {CrudRoute({
-                    path: "guardian",
-                    title: "Guardians",
-                    list: () => backend({ api: "ListGuardian" }),
-                    upsert: (row) => backend({ api: "UpsertGuardian", row }),
-                    delete: (ids) => backend({ api: "DeleteGuardian", ids }),
-                    columns: [
-                        { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
-                        { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
-                        { field: 'created_dth', headerName: 'Created', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
-                        { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
-                    ]
-                })}
+                <Route path="guardian" element={<Crud {...guardian} />} />
                 <Route path="*" element={<Navigate to="/404" />} />
             </Route>
         </Routes>

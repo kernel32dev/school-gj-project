@@ -44,6 +44,7 @@ function LoginPage() {
                             onChange={(event) => setEmail(event.target.value)}
                             required
                             autoFocus
+                            autoComplete="username"
                         />
                     </Grid>
                     <Grid item>
@@ -56,6 +57,7 @@ function LoginPage() {
                             value={password}
                             onChange={(event) => setPassword(event.target.value)}
                             required
+                            autoComplete="current-password"
                         />
                     </Grid>
                     <Grid item alignSelf='center'>
@@ -292,6 +294,7 @@ function SignoffPage() {
                         onChange={(event) => setEmail(event.target.value)}
                         required
                         autoFocus
+                        autoComplete="username"
                     />
                 </Grid>
                 <Grid item>
@@ -304,6 +307,7 @@ function SignoffPage() {
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         required
+                        autoComplete="current-password"
                     />
                 </Grid>
                 <Grid item alignSelf='center'>
