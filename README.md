@@ -3,6 +3,8 @@ school-gj
 
 An example project using react, material UI, node and typescript, hosted on firebase
 
+You can view it running here: https://school-gj-web-project.web.app
+
 Roadmap: (subject to changes)
 - [x] Create github repository
 - [x] Setup react and typescript build system

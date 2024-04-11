@@ -216,8 +216,13 @@ export function HomePage(props: { drawerItems: AppDrawerItem[], drawerWidth: num
 
 function HomeContent() {
     return <>
+        <Typography component="h1" variant="h4">
+            school-gj
+        </Typography>
+        <Divider />
         <Typography>
-            TODO! HomeContent
+            <br />
+            An example CRUD project using react, material UI, node and typescript, hosted on firebase
         </Typography>
     </>;
 }
