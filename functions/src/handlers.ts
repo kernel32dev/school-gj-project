@@ -9,7 +9,7 @@ async function genericUpsert<T extends { id: number }>(row: T, table: string, ke
     if (row.id) {
         await db.execute(`UPDATE ${table} SET ${set} WHERE id = ?`, ...setv, row.id);
     } else {
-        row.id = (await db.execute(`INSERT INTO ${table} SET ${set}, updated_dht = CURRENT_TIMESTAMP`, ...setv)).insertId;
+        row.id = (await db.execute(`INSERT INTO ${table} SET ${set}, updated_dth = CURRENT_TIMESTAMP`, ...setv)).insertId;
     }
     return { row: (await db.query<T[]>(`SELECT id,created_dth,updated_dth,${keys.join(',')} FROM ${table} WHERE id = ?`, row.id))[0] };
 }
