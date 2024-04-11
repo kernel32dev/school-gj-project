@@ -23,19 +23,49 @@ const mysql_config: mysql.PoolOptions = development
 const pool = mysql.createPool(mysql_config);
 
 export default {
-    query<T extends mysql.QueryResult>(
+    query<T = any>(
         sql: string | mysql.QueryOptions,
-        values?: any[],
+        ...values: any[]
     ): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            pool.query<T>(sql as any, values, (error, data) => {
+            pool.query(sql as any, values, (error, data) => {
                 if (error) {
                     logger.error({sql, error});
                     reject(error);
                     return;
                 }
-                resolve(data);
+                convertDates(data);
+                resolve(data as T);
             });
         });
-    }
+    },
+    execute<T = mysql.ResultSetHeader>(
+        sql: string | mysql.QueryOptions,
+        ...values: any[]
+    ): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            pool.execute(sql as any, values, (error, data) => {
+                if (error) {
+                    logger.error({sql, error});
+                    reject(error);
+                    return;
+                }
+                convertDates(data);
+                resolve(data as T);
+            });
+        });
+    },
 };
+
+function convertDates(data: any) {
+    if (Array.isArray(data)) {
+        for (let i = 0; i < data.length; i++) {
+            const keys = Object.keys(data[i]);
+            for (let j = 0; j < data.length; j++) {
+                if (data[i][keys[j]] instanceof Date) {
+                    data[i][keys[j]] = data[i][keys[j]].toISOString();
+                }
+            }
+        }
+    }
+}

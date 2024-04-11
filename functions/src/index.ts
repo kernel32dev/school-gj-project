@@ -10,9 +10,9 @@ setGlobalOptions({
 });
 
 export const backend = onCall({}, (req: CallableRequest<any>): any => {
-    const handler = handlers[req.data.name as keyof FirebaseApi];
+    const handler = handlers[req.data.api as keyof FirebaseApi];
     if (typeof handler !== "function") {
-        throw new Error(`name \"${req.data.name}\" is not a valid name`);
+        throw new Error(`name \"${req.data.api}\" is not a valid name`);
     }
     const promise = handler(req as any);
     if (development) return promise.catch(e => { error: e });

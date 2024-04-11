@@ -38,12 +38,12 @@ export function App() {
                 {CrudRoute({
                     path: "guardian",
                     title: "Guardians",
-                    list: () => backend({name:"ListClassStudent"}),
+                    list: () => backend({ api: "ListGuardian" }),
                     columns: [
                         { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
                         { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
-                        { field: 'created_dth', headerName: 'Created', width: 200, type: 'dateTime', crudVisible: false, cellClassName: "crud-cell-dim" },
-                        { field: 'updated_dth', headerName: 'Updated', width: 200, type: 'dateTime', crudVisible: false, cellClassName: "crud-cell-dim" },
+                        { field: 'created_dth', headerName: 'Created', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+                        { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
                     ]
                 })}
                 <Route path="*" element={<Navigate to="/404" />} />

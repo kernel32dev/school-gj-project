@@ -24,6 +24,8 @@ if (development) connectFunctionsEmulator(functions, "localhost", 5001);
 
 export const backendCallable = httpsCallable(functions, "backend");
 
-export function backend<T extends FirebaseApi[keyof FirebaseApi]["request"]>(request: T): Promise<FirebaseApi[T["name"]]["response"]> {
+export function backend<T extends FirebaseApi[keyof FirebaseApi]["request"]>(request: T): Promise<FirebaseApi[T["api"]]["response"]> {
     return backendCallable(request).then(x => x.data) as Promise<any>;
 }
+
+Object.assign(window, { backend });

@@ -35,8 +35,57 @@ declare namespace db {
         updated_dth: string;
     }
 }
-declare type FirebaseApi = { [P in keyof UntaggedFirebaseApi]: UntaggedFirebaseApi[P] & { request: { name: P } } }
+declare type FirebaseApi = { [P in keyof UntaggedFirebaseApi]: UntaggedFirebaseApi[P] & { request: { api: P } } }
+type UpsertInput<T> = Omit<T, "created_dth" | "updated_dth">;
 interface UntaggedFirebaseApi {
+    UpsertGuardian: {
+        request: { row: UpsertInput<db.Guardian> },
+        response: { row: db.Guardian },
+    };
+    UpsertStudent: {
+        request: { row: UpsertInput<db.Student> },
+        response: { row: db.Student },
+    };
+    UpsertCourse: {
+        request:{ row: UpsertInput<db.Course> } ,
+        response:{ row: db.Course } ,
+    };
+    UpsertGrade: {
+        request: { row: UpsertInput<db.Grade> },
+        response: { row: db.Grade },
+    };
+    UpsertClass: {
+        request: { row: UpsertInput<db.Class> },
+        response: { row: db.Class },
+    };
+    UpsertClassStudent: {
+        request: { row: UpsertInput<db.ClassStudent> },
+        response: { row: db.ClassStudent },
+    };
+    DeleteGuardian: {
+        request: { ids: number[] },
+        response: {},
+    };
+    DeleteStudent: {
+        request: { ids: number[] },
+        response: {},
+    };
+    DeleteCourse: {
+        request:{ ids: number[]} ,
+        response:{} ,
+    };
+    DeleteGrade: {
+        request: { ids: number[] },
+        response: {},
+    };
+    DeleteClass: {
+        request: { ids: number[] },
+        response: {},
+    };
+    DeleteClassStudent: {
+        request: { class_id: number, student_id: number },
+        response: {},
+    };
     ListGuardian: {
         request: {},
         response: { rows: db.Guardian[] },
