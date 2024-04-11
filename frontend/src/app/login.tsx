@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { Route, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import { auth } from "../firebase";
-import { Button, Grid, TextField, Typography } from "@mui/material";
-import { PaperPage } from "../comp";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { ErrorAlert, InfoAlert, PaperPage } from "../comp";
 
 export function LoginRoutes() {
     return <>
@@ -15,12 +18,13 @@ export function LoginRoutes() {
 }
 
 function LoginPage() {
+    const [error, setError] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loggingIn, setLoggingIn] = useState(false);
     const navigate = useNavigate();
 
-    return (
+    return <>
         <PaperPage>
             <form>
                 <Grid container direction='column' spacing={2}>
@@ -77,15 +81,18 @@ function LoginPage() {
                 </Grid>
             </form>
         </PaperPage>
-    );
+        <ErrorAlert errorState={[error, setError]} />
+    </>;
+
     async function login() {
         try {
+            if (email == "") return;
+            if (password == "") return;
             setLoggingIn(true);
             await signInWithEmailAndPassword(auth, email, password);
             navigate("/", { replace: true });
-        } catch (error: any) {
-            console.error(error.code, error.message);
-            alert(`Login error:\n${error.code}\n${error.message}`);
+        } catch (error) {
+            setError(formatError(error));
         } finally {
             setLoggingIn(false);
         }
@@ -93,13 +100,15 @@ function LoginPage() {
 };
 
 function SigninPage() {
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
     const [email, setEmail] = useState("");
     const [password1, setPassword1] = useState("");
     const [password2, setPassword2] = useState("");
     const [signingIn, setSigningIn] = useState(false);
     const navigate = useNavigate();
 
-    return (
+    return <>
         <PaperPage>
             <form>
                 <Grid container direction='column' spacing={2}>
@@ -119,6 +128,7 @@ function SigninPage() {
                             onChange={(event) => setEmail(event.target.value)}
                             required
                             autoFocus
+                            autoComplete="username"
                         />
                     </Grid>
                     <Grid item>
@@ -131,6 +141,7 @@ function SigninPage() {
                             value={password1}
                             onChange={(event) => setPassword1(event.target.value)}
                             required
+                            autoComplete="new-password"
                         />
                     </Grid>
                     <Grid item>
@@ -143,6 +154,7 @@ function SigninPage() {
                             value={password2}
                             onChange={(event) => setPassword2(event.target.value)}
                             required
+                            autoComplete="new-password"
                         />
                     </Grid>
                     <Grid item alignSelf='center'>
@@ -168,29 +180,36 @@ function SigninPage() {
                 </Grid>
             </form>
         </PaperPage>
-    );
+        <ErrorAlert errorState={[error, setError]} />
+        <InfoAlert infoState={[success ? "Account created!\nNow login with your credentials" : "", dismissSuccessAndRedirect]} />
+    </>;
 
     async function signin() {
         try {
+            if (email == "") return;
+            if (password1 == "") return;
+            if (password2 == "") return;
             setSigningIn(true);
             if (password1 != password2) {
-                alert("passwords do not match");
-                return;
+                return setError("Passwords do not match");
             }
             await createUserWithEmailAndPassword(auth, email, password1);
-            alert("account created!\nnow login with your credentials");
-            navigate("/login", { replace: true });
-        } catch (error: any) {
-            console.error(error.code, error.message);
-            alert(`Signin error:\n${error.code}\n${error.message}`);
+            setSuccess(true);
+        } catch (error) {
+            setError(formatError(error));
         } finally {
             setSigningIn(false);
         }
     }
+    function dismissSuccessAndRedirect() {
+        setSuccess(false);
+        navigate("/login", { replace: true });
+    }
 };
 
 function LogoffPage() {
-    const [signingIn, setSigningIn] = useState(false);// TODO!
+    const [error, setError] = useState("");
+    const [signingIn, setSigningIn] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
         isLoggedIn().then(loggedIn => {
@@ -198,7 +217,7 @@ function LogoffPage() {
         });
     }, []);
 
-    return (
+    return <>
         <PaperPage>
             <Grid container spacing={2} alignItems='center' direction='column'>
                 <Grid item>
@@ -212,6 +231,7 @@ function LogoffPage() {
                         color='primary'
                         className='button-block'
                         onClick={logoff}
+                        disabled={signingIn}
                     >
                         Yes, Logoff
                     </Button>
@@ -220,19 +240,29 @@ function LogoffPage() {
                     <Button
                         className='button-block'
                         onClick={() => navigate("/")}
+                        disabled={signingIn}
                     >
                         No, return to home page
                     </Button>
                 </Grid>
             </Grid>
         </PaperPage>
-    );
-    function logoff() {
-        auth.signOut().then(() => navigate("/login"));
+        <ErrorAlert errorState={[error, setError]} />
+    </>;
+
+    async function logoff() {
+        try {
+            setSigningIn(true);
+            await auth.signOut();
+            navigate("/login");
+        } finally {
+            setSigningIn(false);
+        }
     }
 }
 
 function SignoffPage() {
+    const [error, setError] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [signingOff, setSigningOff] = useState(false);
@@ -243,7 +273,7 @@ function SignoffPage() {
         });
     }, []);
 
-    return (
+    return <>
         <PaperPage>
             <Grid container spacing={2} alignItems='center' direction='column'>
                 <Grid item>
@@ -297,16 +327,17 @@ function SignoffPage() {
                 </Grid>
             </Grid>
         </PaperPage>
-    );
+        <ErrorAlert errorState={[error, setError]} />
+    </>;
+
     async function signoff() {
         try {
             setSigningOff(true);
             await signInWithEmailAndPassword(auth, email, password);
             await deleteUser(auth.currentUser!);
             navigate("/login", { replace: true });
-        } catch (error: any) {
-            console.error(error.code, error.message);
-            alert(`Signoff error:\n${error.code}\n${error.message}`);
+        } catch (error) {
+            setError(formatError(error));
         } finally {
             setSigningOff(false);
         }
@@ -316,4 +347,9 @@ function SignoffPage() {
 async function isLoggedIn(): Promise<boolean> {
     await auth.authStateReady();
     return !!auth.currentUser;
+}
+
+function formatError(error: any): string {
+    // TODO! format errors
+    return `Firebase: ${error.code} ${error.message}`;
 }

@@ -12,6 +12,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Navigate, Route, useNavigate } from 'react-router-dom';
+import { ConfirmDialog, ErrorAlert } from '../comp';
 
 export type CrudColDef = GridColDef & {
     /** configures how this property is to be validated before being sent to the server, if absent, the property is not sent */
@@ -23,9 +24,9 @@ export type CrudColDef = GridColDef & {
     /** makes the text in the table less important */
     cellClassName?: "crud-cell-dim",
 };
-type CrudProps<T> = { path: string, title: string, list: () => Promise<{ rows: T[] }>, columns: CrudColDef[] };
+type CrudProps<T> = { path: string, title: string, list: () => Promise<{ rows: T[] }>, upsert: (value: T) => Promise<unknown>, delete: (ids: number[]) => Promise<unknown>, columns: CrudColDef[] };
 
-export function CrudRoute<T>(props: CrudProps<T>) {
+export function CrudRoute<T extends { id: number }>(props: CrudProps<T>) {
     const crud_list = <CrudList {...props} />;
     const crud_new = <CrudNew {...props} />;
     return (
@@ -37,7 +38,8 @@ export function CrudRoute<T>(props: CrudProps<T>) {
     );
 }
 
-function CrudList<T>(props: CrudProps<T>) {
+function CrudList<T extends { id: number }>(props: CrudProps<T>) {
+    const [confirm, setConfirm] = useState<[string, string] | null>(null);
     const { path, title, list, columns } = props;
     const [rows, setRows] = useState<T[]>([]);
     const [selection, setSelection] = useState<GridRowSelectionModel>([]);
@@ -47,7 +49,7 @@ function CrudList<T>(props: CrudProps<T>) {
             setRows(x.rows);
         });
     }, []);
-    return (
+    return <>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ display: 'flex', flexDirection: 'row', marginBottom: '0.5rem' }}>
                 <Typography component="h1" variant="h5" sx={{ marginRight: '3rem' }}>{title}</Typography>
@@ -71,7 +73,8 @@ function CrudList<T>(props: CrudProps<T>) {
                 />
             </div>
         </Box>
-    );
+        <ConfirmDialog prompState={[confirm, setConfirm]} onConfirm={crudDeleteConfirm}/>
+    </>;
     function crudAdd() {
         navigate(`/${path}/new`);
     }
@@ -80,7 +83,15 @@ function CrudList<T>(props: CrudProps<T>) {
         //if (selection.length == 1) navigate(`/${path}/edit/${selection[0]}`);
     }
     function crudDelete() {
-        alert("TODO! delete");
+        if (selection.length == 0) return;
+        if (selection.length == 1) {
+            setConfirm(["Are you sure you want to delete this record?", "Yes, delete this record"]);
+        } else {
+            setConfirm([`Are you sure you want to delete ${selection.length} records?`, "Yes, delete these records"]);
+        }
+    }
+    function crudDeleteConfirm() {
+        setRows(rows.filter(x => !selection.includes(x.id)));
     }
 }
 
@@ -89,6 +100,7 @@ function CrudNew<T>(props: CrudProps<T>) {
     const autoFocusIndex = columns.findIndex(x => x.crudEnabled !== false);
 
     const navigate = useNavigate();
+    const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const [validating, setValidating] = useState(false);
     const [data, setData] = useState<Record<string, any>>(() => {
@@ -96,7 +108,7 @@ function CrudNew<T>(props: CrudProps<T>) {
         for (const x of columns) if (x.crudVisible !== false && x.crudEnabled !== false) obj[x.field] = "";
         return obj;
     });
-    return (
+    return <>
         <Grid container direction="column" spacing={2}>
             <Grid item>
                 <Grid container direction="row" sx={{ marginBottom: '0.5rem' }}>
@@ -110,9 +122,9 @@ function CrudNew<T>(props: CrudProps<T>) {
                     <TextField
                         placeholder={x.headerName}
                         fullWidth
-                        name={x.field}
+                        name={"crud_" + x.field}
                         variant='outlined'
-                        onInput={(event) => setData(data => ({...data, [x.field]: (event.target as HTMLInputElement).value}))}
+                        onInput={(event) => setData(data => ({ ...data, [x.field]: (event.target as HTMLInputElement).value }))}
                         required={!saving && x.crudEnabled !== false}
                         disabled={saving || x.crudEnabled === false}
                         autoFocus={!saving && i == autoFocusIndex}
@@ -131,12 +143,24 @@ function CrudNew<T>(props: CrudProps<T>) {
                 </Grid>
             </Grid>
         </Grid>
-    );
-    function crudSave() {
+        <ErrorAlert errorState={[error, setError]} />
+    </>;
+    async function crudSave() {
         setValidating(true);
+        for (const column of columns) {
+            if (column.crudEnabled !== false && !valid(data[column.field])) {
+                console.log(`field ${column.field} not present in`, data);
+                setError("All fields must be filled before saving");
+                return;
+            }
+        }
         setSaving(true);
         try {
-            alert("TODO! saving");
+            await props.upsert(data as T);
+            navigate("/" + props.path);
+        } catch (error) {
+            setError("An error occoured when saving the data");
+            throw error;
         } finally {
             setSaving(false);
         }

@@ -34,11 +34,13 @@ export function App() {
             <Route path="/404" element={<NotFoundPage />} />
             {LoginRoutes()}
             <Route path="/*" element={<HomePage drawerItems={drawerItems} drawerWidth={drawerWidth} />}>
-                <Route path="" element={<Typography>TODO! Home content</Typography>} />
+                <Route path="" element={<HomeContent />} />
                 {CrudRoute({
                     path: "guardian",
                     title: "Guardians",
                     list: () => backend({ api: "ListGuardian" }),
+                    upsert: (row) => backend({ api: "UpsertGuardian", row }),
+                    delete: (ids) => backend({ api: "DeleteGuardian", ids }),
                     columns: [
                         { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
                         { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
@@ -139,6 +141,14 @@ export function HomePage(props: { drawerItems: AppDrawerItem[], drawerWidth: num
             </Box>
         </Box>
     );
+}
+
+function HomeContent() {
+    return <>
+        <Typography>
+            TODO! HomeContent
+        </Typography>
+    </>;
 }
 
 function get_user_name() {
