@@ -24,7 +24,12 @@ export function App() {
     const drawerWidth = 240;
     const drawerItems: AppDrawerItem[] = [
         { caption: "Home", to: "/" },
-        { caption: "Guardian", to: "/guardian" },
+        "-",
+        { caption: "Guardians", to: "/guardian" },
+        { caption: "Students", to: "/student" },
+        { caption: "Courses", to: "/course" },
+        { caption: "Grades", to: "/grade" },
+        { caption: "Classes", to: "/class" },
         "-",
         { caption: "Logoff", to: "/logoff" },
         { caption: "Signoff", to: "/signoff" },
@@ -42,6 +47,67 @@ export function App() {
             { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
         ]
     };
+    const student: CrudProps<db.Student> = {
+        path: "student",
+        title: "Students",
+        list: () => backend({ api: "ListStudent" }),
+        upsert: (row) => backend({ api: "UpsertStudent", row }),
+        delete: (ids) => backend({ api: "DeleteStudent", ids }),
+        columns: [
+            { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
+            { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'birth_dt', headerName: 'Birth Date', width: 230, crudType: 'string' },
+            { field: 'guardian_id', headerName: 'Guardian', width: 230, crudType: 'number' },
+            { field: 'created_dth', headerName: 'Created', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+            { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+        ]
+    };
+    const course: CrudProps<db.Course> = {
+        path: "course",
+        title: "Courses",
+        list: () => backend({ api: "ListCourse" }),
+        upsert: (row) => backend({ api: "UpsertCourse", row }),
+        delete: (ids) => backend({ api: "DeleteCourse", ids }),
+        columns: [
+            { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
+            { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'acronym', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'created_dth', headerName: 'Created', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+            { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+        ]
+    };
+    const grade: CrudProps<db.Grade> = {
+        path: "grade",
+        title: "Grades",
+        list: () => backend({ api: "ListGrade" }),
+        upsert: (row) => backend({ api: "UpsertGrade", row }),
+        delete: (ids) => backend({ api: "DeleteGrade", ids }),
+        columns: [
+            { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
+            { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'acronym', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'course_id', headerName: 'Course', width: 230, crudType: 'number' },
+            { field: 'next_grade_id', headerName: 'Next Grade', width: 230, crudType: 'number' },
+            { field: 'created_dth', headerName: 'Created', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+            { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+        ]
+    };
+    const class_: CrudProps<db.Class> = {
+        path: "class",
+        title: "Classes",
+        list: () => backend({ api: "ListClass" }),
+        upsert: (row) => backend({ api: "UpsertClass", row }),
+        delete: (ids) => backend({ api: "DeleteClass", ids }),
+        columns: [
+            { field: 'id', headerName: 'ID', width: 70, crudType: 'id', crudEnabled: false },
+            { field: 'name', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'letter', headerName: 'Name', width: 230, crudType: 'string' },
+            { field: 'grade_id', headerName: 'Grade', width: 230, crudType: 'number' },
+            { field: 'year', headerName: 'Year', width: 230, crudType: 'number' },
+            { field: 'created_dth', headerName: 'Created', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+            { field: 'updated_dth', headerName: 'Updated', width: 200, crudVisible: false, cellClassName: "crud-cell-dim" },
+        ]
+    };
     return (
         <Routes>
             <Route path="/404" element={<NotFoundPage />} />
@@ -49,6 +115,10 @@ export function App() {
             <Route path="/*" element={<HomePage drawerItems={drawerItems} drawerWidth={drawerWidth} />}>
                 <Route path="" element={<HomeContent />} />
                 <Route path="guardian" element={<Crud {...guardian} />} />
+                <Route path="student" element={<Crud {...student} />} />
+                <Route path="course" element={<Crud {...course} />} />
+                <Route path="grade" element={<Crud {...grade} />} />
+                <Route path="class" element={<Crud {...class_} />} />
                 <Route path="*" element={<Navigate to="/404" />} />
             </Route>
         </Routes>

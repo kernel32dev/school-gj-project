@@ -11,7 +11,8 @@ Roadmap: (subject to changes)
 - [x] Add sql persistence
 - [x] Host on firebase
 - [x] Figure out Cloud SQL
-- [ ] Add CRUD functionality
+- [x] Add CRUD functionality
+- [ ] Add relations to CRUD
 - [ ] Add reports
 - [ ] ???
 - [ ] Profit

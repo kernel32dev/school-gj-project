@@ -36,7 +36,7 @@ export function Crud<T extends { id: number }>(props: CrudProps<T>) {
 
 function CrudRead<T extends { id: number }>(props: CrudProps<T> & { setCrudState: (value: State<T>) => void }) {
     const [confirm, setConfirm] = useState<[string, string] | null>(null);
-    const { path, title, list, columns } = props;
+    const { title, list, columns } = props;
     const [loading, setLoading] = useState(false);
     const [rows, setRows] = useState<T[]>([]);
     const [selection, setSelection] = useState<GridRowSelectionModel>([]);
@@ -108,35 +108,19 @@ function CrudWrite<T extends { id: number }>(props: CrudProps<T> & { setCrudStat
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const [validating, setValidating] = useState(false);
-    /*const [data, setData] = useState<Record<string, any>>(() => {
-        const obj: any = {};
-        for (const x of columns) if (x.crudVisible !== false && x.crudEnabled !== false) obj[x.field] = "";
-        return obj;
-    });*/
     const [data, setData] = useState<Record<string, any>>(!props.row ? {} : JSON.parse(JSON.stringify(props.row)));
     return <>
         <Grid container direction="column" spacing={2}>
             <Grid item>
                 <Grid container direction="row" sx={{ marginBottom: '0.5rem' }}>
                     <Grid item>
-                        <Typography component="h1" variant="h5" sx={{ marginRight: '3rem' }}>{props.title + " - New"}</Typography>
+                        <Typography component="h1" variant="h5" sx={{ marginRight: '3rem' }}>{props.title + (props.row ? "" : " - New")}</Typography>
                     </Grid>
                 </Grid>
             </Grid>
-            {columns.map((x, i) => (
-                <Grid item key={i}>
-                    <TextField
-                        placeholder={x.headerName}
-                        fullWidth
-                        name={"crud_" + x.field}
-                        variant='outlined'
-                        value={data[x.field]}
-                        onInput={(event) => setData(data => ({ ...data, [x.field]: (event.target as HTMLInputElement).value }))}
-                        required={!saving && x.crudEnabled !== false}
-                        disabled={saving || x.crudEnabled === false}
-                        autoFocus={!saving && i == autoFocusIndex}
-                        error={validating && x.crudEnabled !== false && !valid(data[x.field])}
-                    />
+            {columns.map((col, index) => (
+                <Grid item key={index}>
+                    {renderColumnInput(col, index, data[col.field])}
                 </Grid>
             ))}
             <Grid item>
@@ -177,6 +161,20 @@ function CrudWrite<T extends { id: number }>(props: CrudProps<T> & { setCrudStat
     }
     function valid(x: any) {
         return x !== undefined && x !== null && x !== "";
+    }
+    function renderColumnInput(col: CrudColDef, index: number, value: any) {
+        return <TextField
+            placeholder={col.headerName}
+            fullWidth
+            name={"crud_" + col.field}
+            variant='outlined'
+            value={value}
+            onInput={(event) => setData(data => ({ ...data, [col.field]: (event.target as HTMLInputElement).value }))}
+            required={!saving && col.crudEnabled !== false}
+            disabled={saving || col.crudEnabled === false}
+            autoFocus={!saving && index == autoFocusIndex}
+            error={validating && col.crudEnabled !== false && !valid(value)}
+        />;
     }
 }
 
